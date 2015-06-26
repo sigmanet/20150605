@@ -18,24 +18,30 @@ maclist = []
 
 class switchClass():
     def __init__(self):
+        """
+        Initialize switch object
+        :return:
+        """
+
         self.config = ''
-        self.flag = 0
         self.mac = ''
         self.hostname = ''
         self.numports = ''
         self.modnum = ''
         self.model = ''
         self.porttype = ''
-        self.secondmod = ''
+        self.secondhalf = 0
+        self.postconfig = ''
+        self.finalconfig = ''
 
     def scrub_config(self):
         """
         This cleans up original config by removing anything before the version
         and deleting anything start with the end line
 
-        :param oldswitch.config: the original config passed in
         :return:
         """
+
         write = 0
         oldconfig = self.config
         self.config = ''
@@ -51,6 +57,12 @@ class switchClass():
                 self.config += line + '\n'
 
     def identify(self):
+        """
+        This determines what type of switch the original config comes from.
+
+        :return:
+        """
+
         for line in self.config.split('\n'):
             m = re.search(r'interface FastEthernet0/24', line)
             if m:
@@ -76,7 +88,7 @@ class switchClass():
         print 'Identify: ' + self.model
 
 
-    def config_hostname(self, newhostname):
+    def config_hostname(self):
         """
         This changes the hostname for all iterations of the config
         """
@@ -86,7 +98,7 @@ class switchClass():
         for line in self.config.split('\n'):
             m = re.search(r'(hostname) (\w+)', line)
             if m:
-                newline = '\nhostname ' + newhostname + '\n'
+                newline = '\nhostname ' + self.hostname + '\n'
             else:
                 newline = line + '\n'
             newconfigfinal += newline
@@ -94,17 +106,15 @@ class switchClass():
 
     def convertf(self, oldswitch):
         """
+        Used for FastEthernet Switches
         This converts original switch configs for equal port numbered switches
         or copies a 24 port switch config to the first 24 ports
-
-        :param newconfig: active config being manipulated
-        :param newmodnum: active switch module number of stack
-        :return:
         """
 
+        print 'convertf'
         newconfigfinal = ''
         intnum = 0
-        if self.flag == 1:
+        if self.secondhalf == 1:
             adddown = 24
             addup = 2
         else:
@@ -132,17 +142,15 @@ class switchClass():
 
     def convertg(self, oldswitch):
         """
+        Used for GigabitEthernet Switches
         This converts original switch configs for equal port numbered switches
         or copies a 24 port switch config to the first 24 ports
 
-        :param newconfig: active config being manipulated
-        :param newmodnum: active switch module number of stack
-        :return:
         """
 
         newconfigfinal = ''
         intnum = 0
-        if self.flag == 1:
+        if self.secondhalf == 1:
             adddown = 24
             addup = 2
         else:
@@ -156,8 +164,13 @@ class switchClass():
             if m:
                 change = 1
                 intnum = int(m.group(2)) + adddown
-                if oldswitch.model == 'g24' and intnum >= 25:
+
+                if oldswitch.model == 'g24' and intnum >= 25 and self.secondhalf == 0:
                     intnum -= 24
+                    newint = 'TenGigabitEthernet'
+                    submod = '/1/'
+                elif oldswitch.model == 'g24' and intnum >= 49 and self.secondhalf == 1:
+                    intnum -= 46
                     newint = 'TenGigabitEthernet'
                     submod = '/1/'
                 elif oldswitch.model == 'g48' and intnum >= 49:
@@ -166,91 +179,108 @@ class switchClass():
                     submod = '/1/'
                 newline = '\ninterface ' + newint + \
                           self.modnum + submod + str(intnum) + '\n'
-        # print newconfigfinal
             if change == 0:
                 newline = line + '\n'
             newconfigfinal += newline
         self.config += newconfigfinal
+
+
+    def get_first_port(self):
+        """
+        This extracts teh gconfig for G1/0/1 in the new config to be used in the post install script
+        """
+        write = 0
+        self.g101 = ''
+        for line in self.config.split('\n'):
+            m = re.search(r'^interface GigabitEthernet1/0/1$', line)
+            if m:
+                write = 1
+            m = re.search(r'\!', line)
+            if m:
+                write = 0
+
+            if write == 1:
+               self.g101  += line + '\n'
 
     def config_interfaces(self, oldswitch):
         """
         This looks at old and new port numbers and determines which
         mapping function is required
 
-        :param newconfig: active config being manipulated
-        :param newmodnum: module number of new stack member
-        :param oldswitch.numports: old switch number of ports
-        :param newnumports: new switch number of ports
-        :return:
+        :param oldswitch: object containing all info for origin switch
         """
-        print '->config_interfaces', self.modnum, oldswitch.numports, self.numports, self.flag, oldswitch.model
+        print '->config_interfaces', self.modnum, oldswitch.numports, self.numports, self.secondhalf, oldswitch.model
         if self.numports == oldswitch.numports:
             # copy normal and fix module numbers
             print 'equal',
             if oldswitch.model[:1] == 'f':
-                self.flag = 0
                 self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
-                self.flag = 0
                 self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
+            self.secondhalf = 0
 
-        elif self.numports == '48' and oldswitch.numports == '24' and self.flag == 0:
+        elif self.numports == '48' and oldswitch.numports == '24' and self.secondhalf == 0:
             # copy to bottom ports, set flag to 1
-            print 'unequal, flag 0'
+            print 'unequal, is not second half'
             if oldswitch.model[:1] == 'f':
-                self.flag = 0
                 self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
-                self.flag = 0
                 self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
-            self.flag = 1
+            self.secondhalf = 1
 
-        elif self.numports == '48' and oldswitch.numports == '24' and self.flag == 1:
+        elif self.numports == '48' and oldswitch.numports == '24' and self.secondhalf == 1:
             # copy to bottom ports (+24), set flag to 0
-            print 'unequal, flag 1'
+            print 'unequal, is second half'
             if oldswitch.model[:1] == 'f':
-                self.flag = 0
                 self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
-                self.flag = 0
                 self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
-            self.flag = 0
-            print 'DEBUG: ',self.flag
+            self.secondhalf = 0
         else:
             print "Error: config_interfaces - No match"
 
     def addtemplate(self, template):
+        """
+        Append base.txt file to new switch config for customization
+        """
+
         tmp = open(basetemplate, 'r')
         self.append = tmp.read()
         tmp.close()
         self.config += self.append
 
-def config_postconfig(newhostname):
+    def config_postconfig(self, tftpserver):
+        """
+        Create post-config script to perform cleanup
+        """
+
+        self.postconfig = '"copy run start"\n' \
+                     '"copy running-config tftp://' + tftpserver + 'QA/' + \
+                     self.hostname + '.txt"\n' \
+                     '"do copy running-config tftp://' + tftpserver + 'QA/' + \
+                     self.hostname + '.txt"\n' \
+                     '"interface vlan 1" "no ip address" "shutdown\n' \
+                     '"copy run start"\n' \
+                     '"interface g1/0/1" "desc vstack postconfig test"\n' \
+                    + self.g101
+
+
+
+
+def director_config(macset, ios, tftpserver):
     """
-    Create post-config script to perform cleanup
+    Generate config script to be applied to director
+    :param macset:
+    :param ios:
+    :return:
     """
-    global tftpserver
-    postconfig = '"copy run start"\n' \
-                 '"copy running-config tftp://' + tftpserver + 'QA/' + \
-                 newhostname + '.txt"\n' \
-                 '"do copy running-config tftp://' + tftpserver + 'QA/' + \
-                 newhostname + '.txt"\n' \
-                 '"interface vlan 1" "no ip address" "shutdown\n' \
-                 '"copy run start"\n' \
-                 '"interface g1/0/1" "desc vstack postconfig test"\n'
 
-    return postconfig
-
-
-
-def director_config(macset, ios):
-    global tftpserver
     vsconfig = 'config t\n!\n'
     for mac in macset:
         vsconfig += 'vstack group custom ' + mac + ' mac\n'
@@ -271,6 +301,7 @@ def director_config(macset, ios):
 csvfile = open(basename, 'r')
 reader = csv.DictReader(csvfile)
 
+#  Open master CSV file and process lines
 with open(basename, 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     global maclist
@@ -293,29 +324,31 @@ with open(basename, 'r') as csvfile:
             print '\n\nNEW SWITCH ON THIS LINE:', newmac
         else:
             print '\n\nDUP SWITCH ON THIS LINE:', newmac
-            newswitch.flag = 1
+            # newswitch.flag = 1
 
+        # Assign attributes to active newswitch instance
         newswitch.mac = row['Master MAC']
         newswitch.hostname = row['New Hostname']
         newswitch.numports = row['New Ports']
         newswitch.modnum = row['Module']
 
-
+        # Process interfaces
         newswitch.config_interfaces(oldswitch)
 
+        # Get information for g1/0/1 to be used in postconfig script
+        newswitch.get_first_port()
+
         # Update hostname for stack
-        newswitch.config_hostname(newswitch.hostname)
+        newswitch.config_hostname()
+
+        # Add additional customization
         newswitch.addtemplate(basetemplate)
         # print '*******\n', newswitch.config
 
-        # Write config for stack
-        configout = open(tftproot + newswitch.mac + '.txt', 'w')
-        configout.write(newswitch.config)
-        configout.close()
-        # create post-config script
-        newswitch.postconfig = config_postconfig(newswitch.hostname)
+
 
         # Write post-config script for stack
+        newswitch.config_postconfig(tftpserver)
         postconfigout = open(
             tftproot + newswitch.mac + '-postconfig.txt', 'w')
         postconfigout.write(newswitch.postconfig)
@@ -324,8 +357,15 @@ with open(basename, 'r') as csvfile:
         # Create CLI script to configure vstack
         maclist.append(newswitch.mac)
         macset = set(maclist)
-        director_config(macset, ios)
+        director_config(macset, ios, tftpserver)
         lastswitch = newswitch.mac
 
+        # Write config for stack
+        configout = open(tftproot + newswitch.mac + '.txt', 'w')
+        configout.write(newswitch.config)
+        configout.close()
+        # create post-config script
+        # newswitch.postconfig = config_postconfig(newswitch.hostname)
 
+        newswitch.finalconfig += newswitch.config
 
