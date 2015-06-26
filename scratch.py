@@ -24,13 +24,16 @@ class switchClass():
         self.hostname = ''
         self.numports = ''
         self.modnum = ''
+        self.model = ''
+        self.porttype = ''
+        self.secondmod = ''
 
     def scrub_config(self):
         """
         This cleans up original config by removing anything before the version
         and deleting anything start with the end line
 
-        :param oldconfig: the original config passed in
+        :param oldswitch.config: the original config passed in
         :return:
         """
         write = 0
@@ -89,7 +92,7 @@ class switchClass():
             newconfigfinal += newline
         self.config = newconfigfinal
 
-    def convertf(self, oldconfig):
+    def convertf(self, oldswitch):
         """
         This converts original switch configs for equal port numbered switches
         or copies a 24 port switch config to the first 24 ports
@@ -107,7 +110,7 @@ class switchClass():
         else:
             adddown = 0
             addup = 0
-        for line in oldconfig.split('\n'):
+        for line in oldswitch.config.split('\n'):
             change = 0
             m = re.search(r'(^interface FastEthernet0)/(\d+)', line)
             if m:
@@ -127,7 +130,7 @@ class switchClass():
         # print newconfigfinal
         self.config += newconfigfinal
 
-    def convertg(self, oldconfig):
+    def convertg(self, oldswitch):
         """
         This converts original switch configs for equal port numbered switches
         or copies a 24 port switch config to the first 24 ports
@@ -137,7 +140,6 @@ class switchClass():
         :return:
         """
 
-        global oldswitch
         newconfigfinal = ''
         intnum = 0
         if self.flag == 1:
@@ -170,40 +172,39 @@ class switchClass():
             newconfigfinal += newline
         self.config += newconfigfinal
 
-    def config_interfaces(self, oldconfig, oldnumports, oldmodel):
+    def config_interfaces(self, oldswitch):
         """
         This looks at old and new port numbers and determines which
         mapping function is required
 
         :param newconfig: active config being manipulated
         :param newmodnum: module number of new stack member
-        :param oldnumports: old switch number of ports
+        :param oldswitch.numports: old switch number of ports
         :param newnumports: new switch number of ports
         :return:
         """
-        global oldswitch
-        print '->config_interfaces', self.modnum, oldnumports, self.numports, self.flag, oldmodel
-        if self.numports == oldnumports:
+        print '->config_interfaces', self.modnum, oldswitch.numports, self.numports, self.flag, oldswitch.model
+        if self.numports == oldswitch.numports:
             # copy normal and fix module numbers
             print 'equal',
             if oldswitch.model[:1] == 'f':
                 self.flag = 0
-                self.convertf(oldconfig)
+                self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
                 self.flag = 0
-                self.convertg(oldconfig)
+                self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
 
-        elif self.numports == '48' and oldnumports == '24' and self.flag == 0:
+        elif self.numports == '48' and oldswitch.numports == '24' and self.flag == 0:
             # copy to bottom ports, set flag to 1
             print 'unequal, flag 0'
             if oldswitch.model[:1] == 'f':
                 self.flag = 0
-                self.convertf(oldconfig)
+                self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
                 self.flag = 0
-                self.convertg(oldconfig)
+                self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
             self.flag = 1
@@ -213,10 +214,10 @@ class switchClass():
             print 'unequal, flag 1'
             if oldswitch.model[:1] == 'f':
                 self.flag = 0
-                self.convertf(oldconfig)
+                self.convertf(oldswitch)
             elif oldswitch.model[:1] == 'g':
                 self.flag = 0
-                self.convertg(oldconfig)
+                self.convertg(oldswitch)
             else:
                 print 'Unknown Model'
             self.flag = 0
@@ -300,7 +301,7 @@ with open(basename, 'r') as csvfile:
         newswitch.modnum = row['Module']
 
 
-        newswitch.config_interfaces(oldswitch.config, oldswitch.numports, oldswitch.model)
+        newswitch.config_interfaces(oldswitch)
 
         # Update hostname for stack
         newswitch.config_hostname(newswitch.hostname)
