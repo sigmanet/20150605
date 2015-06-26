@@ -300,6 +300,7 @@ def director_config(macset, ios, tftpserver):
 
 csvfile = open(basename, 'r')
 reader = csv.DictReader(csvfile)
+newswitch = switchClass()
 
 #  Open master CSV file and process lines
 with open(basename, 'r') as csvfile:
@@ -318,13 +319,32 @@ with open(basename, 'r') as csvfile:
         oldswitch.identify()
 
         # check if new switch
-        newmac = row['Master MAC']
-        if newmac <> lastswitch:
+        if row['Master MAC'] <> newswitch.mac:
+            print '\n\nNEW SWITCH ON THIS LINE:', row['Master MAC']
+
+            # Update hostname for stack
+            newswitch.config_hostname()
+
+            # Add additional customization
+            newswitch.addtemplate(basetemplate)
+
+            # Write config for stack
+            configout = open(tftproot + newswitch.mac + '.txt', 'w')
+            configout.write(newswitch.config)
+            configout.close()
+            # create post-config script
+            # newswitch.postconfig = config_postconfig(newswitch.hostname)
+
+            configwritten = 1
+
+
             newswitch = switchClass()
-            print '\n\nNEW SWITCH ON THIS LINE:', newmac
+
         else:
-            print '\n\nDUP SWITCH ON THIS LINE:', newmac
+            print '\n\nDUP SWITCH ON THIS LINE:', row['Master MAC']
             # newswitch.flag = 1
+
+            configwritten = 0
 
         # Assign attributes to active newswitch instance
         newswitch.mac = row['Master MAC']
@@ -338,11 +358,7 @@ with open(basename, 'r') as csvfile:
         # Get information for g1/0/1 to be used in postconfig script
         newswitch.get_first_port()
 
-        # Update hostname for stack
-        newswitch.config_hostname()
 
-        # Add additional customization
-        newswitch.addtemplate(basetemplate)
         # print '*******\n', newswitch.config
 
 
@@ -360,12 +376,19 @@ with open(basename, 'r') as csvfile:
         director_config(macset, ios, tftpserver)
         lastswitch = newswitch.mac
 
+
+
+        newswitch.finalconfig += newswitch.config
+
+    if configwritten == 0:
+        # Update hostname for stack
+        newswitch.config_hostname()
+
+        # Add additional customization
+        newswitch.addtemplate(basetemplate)
+
         # Write config for stack
         configout = open(tftproot + newswitch.mac + '.txt', 'w')
         configout.write(newswitch.config)
         configout.close()
-        # create post-config script
-        # newswitch.postconfig = config_postconfig(newswitch.hostname)
-
-        newswitch.finalconfig += newswitch.config
 

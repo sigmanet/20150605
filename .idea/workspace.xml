@@ -7,7 +7,6 @@
     <list default="true" id="00b71388-4f80-4b7c-97a1-8378b06d6073" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SMConvertOOB.py" afterPath="$PROJECT_DIR$/SMConvertOOB.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scratch.py" afterPath="$PROJECT_DIR$/scratch.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="20150605.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -56,8 +55,8 @@
       <file leaf-file-name="SMConvertOOB.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SMConvertOOB.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.35098523" vertical-offset="5529" max-vertical-offset="6409">
-              <caret line="342" column="0" selection-start-line="342" selection-start-column="0" selection-end-line="342" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.5184729" vertical-offset="5529" max-vertical-offset="6664">
+              <caret line="350" column="45" selection-start-line="350" selection-start-column="45" selection-end-line="350" selection-end-column="45" />
               <folding>
                 <element signature="e#23#33#0" expanded="true" />
               </folding>
@@ -68,8 +67,8 @@
       <file leaf-file-name="scratch.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scratch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-2.7142856" vertical-offset="2336" max-vertical-offset="6409">
-              <caret line="143" column="11" selection-start-line="0" selection-start-column="0" selection-end-line="371" selection-end-column="0" />
+            <state vertical-scroll-proportion="-17.857143" vertical-offset="5189" max-vertical-offset="6800">
+              <caret line="342" column="13" selection-start-line="0" selection-start-column="0" selection-end-line="394" selection-end-column="0" />
               <folding>
                 <element signature="e#23#33#0" expanded="true" />
               </folding>
@@ -136,7 +135,7 @@
       <console-settings />
     </option>
   </component>
-  <component name="RunManager" selected="Python.scratch">
+  <component name="RunManager" selected="Python.SMConvertOOB">
     <configuration default="false" name="UML" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -370,8 +369,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.scratch" />
-        <item index="1" class="java.lang.String" itemvalue="Python.SMConvertOOB" />
+        <item index="0" class="java.lang.String" itemvalue="Python.SMConvertOOB" />
+        <item index="1" class="java.lang.String" itemvalue="Python.scratch" />
         <item index="2" class="java.lang.String" itemvalue="Python.SMTest" />
         <item index="3" class="java.lang.String" itemvalue="Python tests.Unittests in UML" />
         <item index="4" class="java.lang.String" itemvalue="Python.UML" />
@@ -401,7 +400,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.36612022" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="48" y="0" width="919" height="755" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" weight="0.36612022" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" x="48" y="0" width="919" height="755" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31574073" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -588,8 +587,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scratch.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.7142856" vertical-offset="2336" max-vertical-offset="6409">
-          <caret line="143" column="11" selection-start-line="0" selection-start-column="0" selection-end-line="371" selection-end-column="0" />
+        <state vertical-scroll-proportion="-17.857143" vertical-offset="5189" max-vertical-offset="6800">
+          <caret line="342" column="13" selection-start-line="0" selection-start-column="0" selection-end-line="394" selection-end-column="0" />
           <folding>
             <element signature="e#23#33#0" expanded="true" />
           </folding>
@@ -598,8 +597,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SMConvertOOB.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35098523" vertical-offset="5529" max-vertical-offset="6409">
-          <caret line="342" column="0" selection-start-line="342" selection-start-column="0" selection-end-line="342" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.5184729" vertical-offset="5529" max-vertical-offset="6664">
+          <caret line="350" column="45" selection-start-line="350" selection-start-column="45" selection-end-line="350" selection-end-column="45" />
           <folding>
             <element signature="e#23#33#0" expanded="true" />
           </folding>
